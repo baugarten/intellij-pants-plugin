@@ -22,6 +22,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl;
+import com.intellij.openapi.roots.CompilerModuleExtension;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TestDialog;
@@ -29,6 +31,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -201,8 +204,15 @@ public abstract class PantsIntegrationTestCase extends ExternalSystemImportingTe
   @Nullable
   private File findClassFile(String className, String moduleName) throws Exception {
     assertNotNull("Compilation wasn't completed successfully!", getCompilerTester());
-    final String compilerOutputPaths = getModule(moduleName).getOptionValue(PantsConstants.PANTS_COMPILER_OUTPUTS_KEY);
-    assertNotNull(compilerOutputPaths);
+    String compilerOutputPaths;
+    if (PantsSettings.getInstance(myProject).isCompileWithIntellij()) {
+      final CompilerModuleExtension moduleExtension =
+        ModuleRootManager.getInstance(getModule(moduleName)).getModuleExtension(CompilerModuleExtension.class);
+      compilerOutputPaths = VfsUtil.urlToPath(moduleExtension.getCompilerOutputUrl());
+    } else {
+      compilerOutputPaths = getModule(moduleName).getOptionValue(PantsConstants.PANTS_COMPILER_OUTPUTS_KEY);
+      assertNotNull(compilerOutputPaths);
+    }
     for (String compilerOutputPath : StringUtil.split(compilerOutputPaths, ":")) {
       final File classFile = new File(new File(compilerOutputPath), className.replace('.', '/') + ".class");
       if (classFile.exists()) {
