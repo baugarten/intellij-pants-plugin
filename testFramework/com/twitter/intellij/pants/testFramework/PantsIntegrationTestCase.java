@@ -208,7 +208,8 @@ public abstract class PantsIntegrationTestCase extends ExternalSystemImportingTe
     if (PantsSettings.getInstance(myProject).isCompileWithIntellij()) {
       final CompilerModuleExtension moduleExtension =
         ModuleRootManager.getInstance(getModule(moduleName)).getModuleExtension(CompilerModuleExtension.class);
-      compilerOutputPaths = VfsUtil.urlToPath(moduleExtension.getCompilerOutputUrl());
+      compilerOutputPaths = VfsUtil.urlToPath(moduleExtension.getCompilerOutputUrl()) + ":" +
+                            VfsUtil.urlToPath(moduleExtension.getCompilerOutputUrlForTests());
     } else {
       compilerOutputPaths = getModule(moduleName).getOptionValue(PantsConstants.PANTS_COMPILER_OUTPUTS_KEY);
       assertNotNull(compilerOutputPaths);
