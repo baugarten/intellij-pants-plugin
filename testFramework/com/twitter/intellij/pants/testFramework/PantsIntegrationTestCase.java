@@ -129,11 +129,6 @@ public abstract class PantsIntegrationTestCase extends ExternalSystemImportingTe
 
       PantsUtil.copyDirContent(projectTemplateFolder, projectDir);
     }
-
-    if (PantsUtil.isIsolatedStrategyTestFlagEnabled()) {
-      final File isolatedIni = new File(PantsTestUtils.findTestPath("testData"), isolatedPantsIniName);
-      FileUtil.copy(isolatedIni, new File(projectDir, PantsConstants.PANTS_INI));
-    }
   }
 
   private void cleanProjectRoot() throws ExecutionException {
